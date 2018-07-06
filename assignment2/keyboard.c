@@ -47,39 +47,6 @@ void boot2() {
   }
 }
 
-// 問題1
-// void boot2() {
-//     int key = 0;
-// while (1) {
-//
-//   while ((in8(KBD_STATUS) & 1) == 0)
-//     ;
-//   // 前回の表示を消す
-// print(1, 10, 10, 0);
-// print(0, 10, 10, 0);
-// print(key >> 4,10,20,0);
-// print(key & 0x0f,20,20,0);
-//
-//   int value = in8(KBD_DATA);
-//   if (value & KEY_UP_BIT)    // if key up
-//     print(1, 10, 10, 15);
-//   else
-//     print(0, 10, 10, 15);
-//
-//   key = value & 0x7f;
-//
-//     print(key >> 4,10,20,10);
-//     print(key & 0x0f,20,20,10);
-//
-//   }
-//
-//   halt();
-// }
-
-// 関数の宣言は省略する。
-// C89 までは、戻り値が int である関数は事前に宣言しなくてもよかった。
-// 適当な戻り値がない場合は 0 を返すことにする。
-
 int xpos = 100;//未使用
 
 int kbd_handler() {

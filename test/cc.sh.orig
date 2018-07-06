@@ -1,0 +1,5 @@
+#!/bin/sh
+gcc -arch i386 -static -fno-stack-protector -S $1.c
+sed -e 's/.subsections_via_symbols/#.subsections_via_symbols/g' $1.s > $1.as
+./gas -o $1.o $1.as
+rm $1.s $1.as

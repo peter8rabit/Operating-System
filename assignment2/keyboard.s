@@ -1,27 +1,16 @@
 .org 0x8200
 
 	.section	__TEXT,__text,regular,pure_instructions
-	.macosx_version_min 10, 13
-	.globl	_boot2                  ## -- Begin function boot2
-	.p2align	4, 0x90
+	.macosx_version_min 10, 12
+	.globl	_boot2
+	.align	4, 0x90
 _boot2:                                 ## @boot2
-	.cfi_startproc
 ## BB#0:
 	pushl	%ebp
-Lcfi0:
-	.cfi_def_cfa_offset 8
-Lcfi1:
-	.cfi_offset %ebp, -8
 	movl	%esp, %ebp
-Lcfi2:
-	.cfi_def_cfa_register %ebp
 	pushl	%edi
 	pushl	%esi
 	subl	$160, %esp
-Lcfi3:
-	.cfi_offset %esi, -16
-Lcfi4:
-	.cfi_offset %edi, -12
 	calll	_register_kbd_handler
 	movl	$0, -12(%ebp)
 	movl	%eax, -20(%ebp)         ## 4-byte Spill
@@ -149,21 +138,13 @@ LBB0_6:                                 ##   in Loop: Header=BB0_1 Depth=1
 	movl	%eax, -144(%ebp)        ## 4-byte Spill
 LBB0_7:                                 ##   in Loop: Header=BB0_1 Depth=1
 	jmp	LBB0_1
-	.cfi_endproc
-                                        ## -- End function
-	.globl	_kbd_handler            ## -- Begin function kbd_handler
-	.p2align	4, 0x90
+
+	.globl	_kbd_handler
+	.align	4, 0x90
 _kbd_handler:                           ## @kbd_handler
-	.cfi_startproc
 ## BB#0:
 	pushl	%ebp
-Lcfi5:
-	.cfi_def_cfa_offset 8
-Lcfi6:
-	.cfi_offset %ebp, -8
 	movl	%esp, %ebp
-Lcfi7:
-	.cfi_def_cfa_register %ebp
 	subl	$40, %esp
 	movl	$32, %eax
 	movl	$97, %ecx
@@ -183,21 +164,13 @@ Lcfi7:
 	addl	$40, %esp
 	popl	%ebp
 	retl
-	.cfi_endproc
-                                        ## -- End function
-	.globl	_register_kbd_handler   ## -- Begin function register_kbd_handler
-	.p2align	4, 0x90
+
+	.globl	_register_kbd_handler
+	.align	4, 0x90
 _register_kbd_handler:                  ## @register_kbd_handler
-	.cfi_startproc
 ## BB#0:
 	pushl	%ebp
-Lcfi8:
-	.cfi_def_cfa_offset 8
-Lcfi9:
-	.cfi_offset %ebp, -8
 	movl	%esp, %ebp
-Lcfi10:
-	.cfi_def_cfa_register %ebp
 	subl	$56, %esp
 	leal	_kbd_handler, %eax
 	movl	$32256, %ecx            ## imm = 0x7E00
@@ -227,98 +200,84 @@ Lcfi10:
 	addl	$56, %esp
 	popl	%ebp
 	retl
-	.cfi_endproc
-                                        ## -- End function
-	.globl	_print                  ## -- Begin function print
-	.p2align	4, 0x90
+
+	.globl	_print
+	.align	4, 0x90
 _print:                                 ## @print
-	.cfi_startproc
 ## BB#0:
 	pushl	%ebp
-Lcfi11:
-	.cfi_def_cfa_offset 8
-Lcfi12:
-	.cfi_offset %ebp, -8
 	movl	%esp, %ebp
-Lcfi13:
-	.cfi_def_cfa_register %ebp
 	pushl	%ebx
 	pushl	%edi
 	pushl	%esi
 	subl	$40, %esp
-Lcfi14:
-	.cfi_offset %esi, -20
-Lcfi15:
-	.cfi_offset %edi, -16
-Lcfi16:
-	.cfi_offset %ebx, -12
 	movl	20(%ebp), %eax
 	movl	16(%ebp), %ecx
 	movl	12(%ebp), %edx
 	movl	8(%ebp), %esi
 	leal	_print.bitmaps, %edi
 	movl	$655360, %ebx           ## imm = 0xA0000
-	movl	%ebx, -24(%ebp)
-	movl	8(%ebp), %ebx
-	shll	$2, %ebx
-	addl	%ebx, %edi
-	movl	%edi, -28(%ebp)
-	imull	$320, 16(%ebp), %edi    ## imm = 0x140
-	addl	12(%ebp), %edi
-	addl	-24(%ebp), %edi
-	movl	%edi, -24(%ebp)
-	movl	$0, -16(%ebp)
-	movl	%eax, -36(%ebp)         ## 4-byte Spill
-	movl	%ecx, -40(%ebp)         ## 4-byte Spill
-	movl	%edx, -44(%ebp)         ## 4-byte Spill
-	movl	%esi, -48(%ebp)         ## 4-byte Spill
+	movl	%esi, -16(%ebp)
+	movl	%edx, -20(%ebp)
+	movl	%ecx, -24(%ebp)
+	movl	%eax, -28(%ebp)
+	movl	%ebx, -40(%ebp)
+	movl	-16(%ebp), %eax
+	shll	$2, %eax
+	addl	%eax, %edi
+	movl	%edi, -44(%ebp)
+	imull	$320, -24(%ebp), %eax   ## imm = 0x140
+	addl	-20(%ebp), %eax
+	addl	-40(%ebp), %eax
+	movl	%eax, -40(%ebp)
+	movl	$0, -32(%ebp)
 LBB3_1:                                 ## =>This Loop Header: Depth=1
                                         ##     Child Loop BB3_3 Depth 2
-	cmpl	$8, -16(%ebp)
+	cmpl	$8, -32(%ebp)
 	jge	LBB3_10
 ## BB#2:                                ##   in Loop: Header=BB3_1 Depth=1
-	movl	$0, -20(%ebp)
+	movl	$0, -36(%ebp)
 LBB3_3:                                 ##   Parent Loop BB3_1 Depth=1
                                         ## =>  This Inner Loop Header: Depth=2
-	cmpl	$4, -20(%ebp)
+	cmpl	$4, -36(%ebp)
 	jge	LBB3_8
 ## BB#4:                                ##   in Loop: Header=BB3_3 Depth=2
 	movl	$128, %eax
-	movl	-28(%ebp), %ecx
-	movl	-20(%ebp), %edx
-	movb	(%ecx,%edx), %bl
-	movb	%bl, -29(%ebp)
-	movsbl	-29(%ebp), %ecx
-	movl	-16(%ebp), %edx
+	movl	-36(%ebp), %ecx
+	movl	-44(%ebp), %edx
+	movb	(%edx,%ecx), %bl
+	movb	%bl, -45(%ebp)
+	movsbl	-45(%ebp), %ecx
+	movl	-32(%ebp), %edx
 	movl	%ecx, -52(%ebp)         ## 4-byte Spill
 	movl	%edx, %ecx
-                                        ## kill: %CL<def> %ECX<kill>
+                                        ## 
 	sarl	%cl, %eax
 	movl	-52(%ebp), %edx         ## 4-byte Reload
 	andl	%eax, %edx
 	cmpl	$0, %edx
 	je	LBB3_6
 ## BB#5:                                ##   in Loop: Header=BB3_3 Depth=2
-	movl	20(%ebp), %eax
+	movl	-28(%ebp), %eax
 	movb	%al, %cl
-	movl	-24(%ebp), %eax
-	movl	-20(%ebp), %edx
+	movl	-40(%ebp), %eax
+	movl	-36(%ebp), %edx
 	movb	%cl, (%eax,%edx)
 LBB3_6:                                 ##   in Loop: Header=BB3_3 Depth=2
 	jmp	LBB3_7
 LBB3_7:                                 ##   in Loop: Header=BB3_3 Depth=2
-	movl	-20(%ebp), %eax
+	movl	-36(%ebp), %eax
 	addl	$1, %eax
-	movl	%eax, -20(%ebp)
+	movl	%eax, -36(%ebp)
 	jmp	LBB3_3
 LBB3_8:                                 ##   in Loop: Header=BB3_1 Depth=1
-	movl	-24(%ebp), %eax
+	movl	-40(%ebp), %eax
 	addl	$320, %eax              ## imm = 0x140
-	movl	%eax, -24(%ebp)
+	movl	%eax, -40(%ebp)
 ## BB#9:                                ##   in Loop: Header=BB3_1 Depth=1
-	movl	-16(%ebp), %eax
+	movl	-32(%ebp), %eax
 	addl	$1, %eax
-	movl	%eax, -16(%ebp)
+	movl	%eax, -32(%ebp)
 	jmp	LBB3_1
 LBB3_10:
 	xorl	%eax, %eax
@@ -328,147 +287,93 @@ LBB3_10:
 	popl	%ebx
 	popl	%ebp
 	retl
-	.cfi_endproc
-                                        ## -- End function
-	.globl	_in8                    ## -- Begin function in8
-	.p2align	4, 0x90
+
+	.globl	_in8
+	.align	4, 0x90
 _in8:                                   ## @in8
-	.cfi_startproc
 ## BB#0:
 	pushl	%ebp
-Lcfi17:
-	.cfi_def_cfa_offset 8
-Lcfi18:
-	.cfi_offset %ebp, -8
 	movl	%esp, %ebp
-Lcfi19:
-	.cfi_def_cfa_register %ebp
 	subl	$8, %esp
 	movl	8(%ebp), %eax
-	movl	8(%ebp), %edx
+	movl	%eax, -4(%ebp)
+	movl	-4(%ebp), %edx
 	## InlineAsm Start
 	movl	$0, %eax
 	inb	%dx, %al
 	## InlineAsm End
-	movl	%edx, -4(%ebp)
-	movl	-4(%ebp), %edx
-	movl	%eax, -8(%ebp)          ## 4-byte Spill
-	movl	%edx, %eax
+	movl	%eax, -8(%ebp)
+	movl	-8(%ebp), %eax
 	addl	$8, %esp
 	popl	%ebp
 	retl
-	.cfi_endproc
-                                        ## -- End function
-	.globl	_out8                   ## -- Begin function out8
-	.p2align	4, 0x90
+
+	.globl	_out8
+	.align	4, 0x90
 _out8:                                  ## @out8
-	.cfi_startproc
 ## BB#0:
 	pushl	%ebp
-Lcfi20:
-	.cfi_def_cfa_offset 8
-Lcfi21:
-	.cfi_offset %ebp, -8
 	movl	%esp, %ebp
-Lcfi22:
-	.cfi_def_cfa_register %ebp
-	pushl	%esi
 	subl	$8, %esp
-Lcfi23:
-	.cfi_offset %esi, -12
 	movl	12(%ebp), %eax
 	movl	8(%ebp), %ecx
-	movl	8(%ebp), %edx
-	movl	12(%ebp), %esi
-	movl	%eax, -8(%ebp)          ## 4-byte Spill
-	movl	%esi, %eax
+	movl	%ecx, -4(%ebp)
+	movl	%eax, -8(%ebp)
+	movl	-4(%ebp), %edx
+	movl	-8(%ebp), %eax
 	## InlineAsm Start
 	outb	%al, %dx
 	## InlineAsm End
 	xorl	%eax, %eax
-	movl	%ecx, -12(%ebp)         ## 4-byte Spill
 	addl	$8, %esp
-	popl	%esi
 	popl	%ebp
 	retl
-	.cfi_endproc
-                                        ## -- End function
-	.globl	_sti                    ## -- Begin function sti
-	.p2align	4, 0x90
+
+	.globl	_sti
+	.align	4, 0x90
 _sti:                                   ## @sti
-	.cfi_startproc
 ## BB#0:
 	pushl	%ebp
-Lcfi24:
-	.cfi_def_cfa_offset 8
-Lcfi25:
-	.cfi_offset %ebp, -8
 	movl	%esp, %ebp
-Lcfi26:
-	.cfi_def_cfa_register %ebp
 	## InlineAsm Start
 	sti
 	## InlineAsm End
 	xorl	%eax, %eax
 	popl	%ebp
 	retl
-	.cfi_endproc
-                                        ## -- End function
-	.globl	_cli                    ## -- Begin function cli
-	.p2align	4, 0x90
+
+	.globl	_cli
+	.align	4, 0x90
 _cli:                                   ## @cli
-	.cfi_startproc
 ## BB#0:
 	pushl	%ebp
-Lcfi27:
-	.cfi_def_cfa_offset 8
-Lcfi28:
-	.cfi_offset %ebp, -8
 	movl	%esp, %ebp
-Lcfi29:
-	.cfi_def_cfa_register %ebp
 	## InlineAsm Start
 	cli
 	## InlineAsm End
 	xorl	%eax, %eax
 	popl	%ebp
 	retl
-	.cfi_endproc
-                                        ## -- End function
-	.globl	_halt                   ## -- Begin function halt
-	.p2align	4, 0x90
+
+	.globl	_halt
+	.align	4, 0x90
 _halt:                                  ## @halt
-	.cfi_startproc
 ## BB#0:
 	pushl	%ebp
-Lcfi30:
-	.cfi_def_cfa_offset 8
-Lcfi31:
-	.cfi_offset %ebp, -8
 	movl	%esp, %ebp
-Lcfi32:
-	.cfi_def_cfa_register %ebp
 	## InlineAsm Start
 	hlt
 	## InlineAsm End
 	xorl	%eax, %eax
 	popl	%ebp
 	retl
-	.cfi_endproc
-                                        ## -- End function
-	.globl	_sti_and_halt           ## -- Begin function sti_and_halt
-	.p2align	4, 0x90
+
+	.globl	_sti_and_halt
+	.align	4, 0x90
 _sti_and_halt:                          ## @sti_and_halt
-	.cfi_startproc
 ## BB#0:
 	pushl	%ebp
-Lcfi33:
-	.cfi_def_cfa_offset 8
-Lcfi34:
-	.cfi_offset %ebp, -8
 	movl	%esp, %ebp
-Lcfi35:
-	.cfi_def_cfa_register %ebp
 	## InlineAsm Start
 	sti
 	hlt
@@ -476,15 +381,14 @@ Lcfi35:
 	xorl	%eax, %eax
 	popl	%ebp
 	retl
-	.cfi_endproc
-                                        ## -- End function
+
 	.globl	_myEventFlag            ## @myEventFlag
 .zerofill __DATA,__common,_myEventFlag,4,2
 	.globl	_myValue                ## @myValue
 .zerofill __DATA,__common,_myValue,4,2
 	.section	__DATA,__data
 	.globl	_xpos                   ## @xpos
-	.p2align	2
+	.align	2
 _xpos:
 	.long	100                     ## 0x64
 
