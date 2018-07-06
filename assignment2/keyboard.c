@@ -4,34 +4,33 @@
 #define KBD_DATA      0x60
 #define KEY_UP_BIT    0x80
 #define SCREEN_WIDTH  320
-
 // 関数 boot2() より前に他の関数の定義(実装)や、大域変数宣言を書いてはいけない
 
 void boot2() {
-  // while ((in8(KBD_STATUS) & 1) == 0)
-  //   ;
-
-print(0, 10, 50, 15);
-print(1, 20, 50, 15);
-print(2, 30, 50, 15);
-print(3, 40, 50, 15);
-print(4, 50, 50, 15);
-print(5, 60, 50, 15);
-print(6, 70, 50, 15);
-print(7, 80, 50, 15);
-print(8, 90, 50, 15);
-print(9, 110, 50, 15);
-// print(6, 70, 50, 15);
-
-
+    int key = 0;
+while (1) {
+  
+  while ((in8(KBD_STATUS) & 1) == 0)
+    ;
+  // 前回の表示を消す
+print(1, 10, 10, 0);
+print(0, 10, 10, 0);
+print(key >> 4,10,20,0);
+print(key & 0x0f,20,20,0);
 
   int value = in8(KBD_DATA);
   if (value & KEY_UP_BIT)    // if key up
-    print(1, 100, 50, 15);
+    print(1, 10, 10, 15);
   else
-    print(0, 100, 50, 15);
+    print(0, 10, 10, 15);
 
-  int key = value & 0x7f;
+  key = value & 0x7f;
+
+    print(key >> 4,10,20,10);
+    print(key & 0x0f,20,20,10);
+
+  }
+
   halt();
 }
 
@@ -70,8 +69,13 @@ int print(int num, int x, int y, int color) {
     { 0xff, 0x89,0x89,0x8f }, // 6
     { 0xc0, 0x80,0x80,0xff }, // 7
     { 0x66, 0x99,0x99,0x66 }, // 8
-    { 0xf0, 0x90,0x90,0xff } // 9
-    //{ 0xf0, 0x90,0x90,0xff } // A
+    { 0xf0, 0x90,0x90,0xff }, // 9
+    { 0x7f, 0x90,0x90,0xe7f }, // A
+    { 0xff, 0x91,0x91,0x6e }, // B
+    { 0xff, 0x81,0x81,0x81 }, // C
+    { 0xff, 0x81,0x81,0x7e }, // D
+    { 0xff, 0x91,0x91,0x91 }, // E
+    { 0xff, 0x90,0x90,0x90 } // F
   };
 
   int i, j;
