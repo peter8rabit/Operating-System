@@ -5,48 +5,87 @@
 #define KEY_UP_BIT    0x80
 #define SCREEN_WIDTH  320
 // 関数 boot2() より前に他の関数の定義(実装)や、大域変数宣言を書いてはいけない
+void boot2();
+
+int myEventFlag = 0;//boolが使えない．
+int myValue =0;
 
 void boot2() {
-    int key = 0;
-while (1) {
-  
-  while ((in8(KBD_STATUS) & 1) == 0)
-    ;
-  // 前回の表示を消す
-print(1, 10, 10, 0);
-print(0, 10, 10, 0);
-print(key >> 4,10,20,0);
-print(key & 0x0f,20,20,0);
+  register_kbd_handler();
+  int key = 0;
+  while (1) {
+    cli();
+    if (myEventFlag) {
+      // キー番号を保存してある大域変数を読み書き
+      int value = myValue;
+      sti();
+      // キー番号を表示
 
-  int value = in8(KBD_DATA);
-  if (value & KEY_UP_BIT)    // if key up
-    print(1, 10, 10, 15);
-  else
-    print(0, 10, 10, 15);
+        // 前回の表示を消す
+      print(1, 10, 10, 0);
+      print(0, 10, 10, 0);
+      print(key >> 4,10,20,0);
+      print(key & 0x0f,20,20,0);
 
-  key = value & 0x7f;
+        if (value & KEY_UP_BIT)    // if key up
+          print(1, 10, 10, 15);
+        else
+          print(0, 10, 10, 15);
 
-    print(key >> 4,10,20,10);
-    print(key & 0x0f,20,20,10);
+        key = value & 0x7f;
 
+          print(key >> 4,10,20,10);
+          print(key & 0x0f,20,20,10);
+
+
+      myEventFlag = 0;
+    }
+    else
+    {
+      sti_and_halt();
+    }
   }
-
-  halt();
 }
+
+// 問題1
+// void boot2() {
+//     int key = 0;
+// while (1) {
+//
+//   while ((in8(KBD_STATUS) & 1) == 0)
+//     ;
+//   // 前回の表示を消す
+// print(1, 10, 10, 0);
+// print(0, 10, 10, 0);
+// print(key >> 4,10,20,0);
+// print(key & 0x0f,20,20,0);
+//
+//   int value = in8(KBD_DATA);
+//   if (value & KEY_UP_BIT)    // if key up
+//     print(1, 10, 10, 15);
+//   else
+//     print(0, 10, 10, 15);
+//
+//   key = value & 0x7f;
+//
+//     print(key >> 4,10,20,10);
+//     print(key & 0x0f,20,20,10);
+//
+//   }
+//
+//   halt();
+// }
 
 // 関数の宣言は省略する。
 // C89 までは、戻り値が int である関数は事前に宣言しなくてもよかった。
 // 適当な戻り値がない場合は 0 を返すことにする。
 
-int xpos = 100;
+int xpos = 100;//未使用
 
 int kbd_handler() {
   out8(0x20, 0x61);	// PIC0_OCW2: accept IRQ1 again
-  int value = in8(KBD_DATA);
-
-  // 表示: ここを書き換えればよい
-  print(0, xpos, 60, 14);
-  xpos += 5;
+  myValue = in8(KBD_DATA);
+  myEventFlag = 1;
 }
 
 // 割り込み処理関数を登録する
