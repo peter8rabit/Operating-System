@@ -8,7 +8,14 @@
 
 int xpos = 100;
 int fdc_running = 0;
-
+void boot2();
+// Cylinder,Head,Sector
+void toPairCHS(int block,int &out[])
+{
+out[0] = block / 36;
+out[1] = (block - 36 * out[0]) / 18;
+out[2] = block - 36 * out[0] - 18 * out[1] + 1;
+}
 /* boot2() が最初に呼ばれる
  */
 void boot2() {
@@ -17,6 +24,20 @@ void boot2() {
   register_handlers();
   fdc_initialize();
   ptr = (unsigned char*)FDC_DMA_BUF_ADDR;
+
+  int out[3];
+  toPairCHS(19,out);// 19ブロックにTEST.TXTがある．
+
+  fdc_running = 1;
+  fdc_read(out[0],out[1],out[3]);
+  while (fdc_running)
+    halt();
+
+  fdc_read2();
+  fdc_running = 0;
+
+
+
   *ptr = 'A';
   ptr[1] = 'B';
 
