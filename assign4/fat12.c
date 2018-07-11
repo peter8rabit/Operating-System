@@ -8,7 +8,14 @@
 
 int xpos = 100;
 int fdc_running = 0;
-
+void boot2();
+// Cylinder,Head,Sector
+void toPairCHS(int block,int out[])
+{
+out[0] = block / 36;
+out[1] = (block - 36 * out[0]) / 18;
+out[2] = block - 36 * out[0] - 18 * out[1] + 1;
+}
 /* boot2() が最初に呼ばれる
  */
 void boot2() {
@@ -20,13 +27,49 @@ void boot2() {
   *ptr = 'A';
   ptr[1] = 'B';
 
+  // 19ブロックにTEST.TXTがあった．
+  // Directroy構造的の定義より，
+  // 最後の6Bit:04 00 00 02 00 00
+  // 26,27ビット目がFATの要素番号
+  // 28,29,30,31ビット目がサイズ
+  // それぞれの項目がリトルエンディアン
+  // 0x00000200 = 512Byte
+  // 0x0004 = FAT番号4 = 35セクタ
+  int pair[3];
+  toPairCHS(35,pair);
+
   fdc_running = 1;
-  fdc_write(0, 0, 1);
+  // fdc_write(0, 0, 2);
+  fdc_write(pair[0], pair[1], pair[2]);
   while (fdc_running)
     halt();
 
   fdc_write2();
   fdc_running = 0;
+
+  // 問題２
+  // Writeで上書きされるのでReadする必要があるのか。
+  // ２つファイルがあるので、32*2Bitに続ける
+  toPairCHS(19,pair);
+  #define SHIFT 32*2
+  ptr[0+0]='T';
+  ptr[1+SHIFT]='E';
+  ptr[2+SHIFT]='S';
+  ptr[3+SHIFT]='T';
+  ptr[8+SHIFT]='T';
+  ptr[9+SHIFT]='X';
+  ptr[10+SHIFT]='T';
+
+  fdc_running = 1;
+  // fdc_write(0, 0, 2);
+  fdc_write(pair[0], pair[1], pair[2]);
+  while (fdc_running)
+    halt();
+
+  fdc_write2();
+  fdc_running = 0;
+
+
 
   while (1)
     halt();
