@@ -24,7 +24,11 @@ void boot2() {
   register_handlers();
   fdc_initialize();
   ptr = (unsigned char*)FDC_DMA_BUF_ADDR;
-  *ptr = 'A';
+
+  for (int i = 0; i < FDC_DMA_BUF_SIZE; i++) {
+    ptr[i]=0x00;
+  }
+  ptr[0] = 'A';
   ptr[1] = 'B';
 
   // 19ブロックにTEST.TXTがあった．
@@ -39,7 +43,6 @@ void boot2() {
   toPairCHS(35,pair);
 
   fdc_running = 1;
-  // fdc_write(0, 0, 2);
   fdc_write(pair[0], pair[1], pair[2]);
   while (fdc_running)
     halt();
@@ -48,28 +51,78 @@ void boot2() {
   fdc_running = 0;
 
   // 問題２
-  // Writeで上書きされるのでReadする必要があるのか。
-  // ２つファイルがあるので、32*2Bitに続ける
+  // ３つ目のファイルを追加したい１9セクタ：Writeで上書きされるので先にReadする必要がある
   toPairCHS(19,pair);
+
+  //19セクタBOOTOBJファイルの要素番号5 -> FAT[5] = 0xff6
+  //TEST.TXT ->  FAT[4] = 0xf00
+
+  fdc_initialize();
+  fdc_running = 1;
+  fdc_read(pair[0], pair[1], pair[2]);
+  while (fdc_running)
+    halt();
+  fdc_read2();
+  fdc_running = 0;
+
+  // ２つファイルがあるので、32*2Bitに続ける
   #define SHIFT 32*2
-  ptr[0+0]='T';
+  ptr[0+SHIFT]='T';
   ptr[1+SHIFT]='E';
   ptr[2+SHIFT]='S';
   ptr[3+SHIFT]='T';
+  ptr[4+SHIFT]='2';
   ptr[8+SHIFT]='T';
   ptr[9+SHIFT]='X';
   ptr[10+SHIFT]='T';
+  ptr[11+SHIFT]=0x20;//ファイル属性:通常は0x20
+  ptr[12+SHIFT]=0x00;//予約領域：通常は0x00
+  //TEST.TXTの数値を代用
+  // ptr[18+SHIFT]=0xeb;
+  // ptr[19+SHIFT]=0x4c;
+  // ptr[22+SHIFT]=0x40;
+  // ptr[24+SHIFT]=0x6a;
+  // ptr[25+SHIFT]=0x39;
 
+//リトルエンディアンで逆
+//FAT要素番号3 = 34セクタに中身を書き込んでみる
+  ptr[26+SHIFT]=0x03;
+  ptr[27+SHIFT]=0x00;
+
+// 1024Byte size
+  ptr[28+SHIFT]=0x00;
+  ptr[29+SHIFT]=0x02;
+
+  toPairCHS(19,pair);
+
+// 19セクタ上書き
+  fdc_initialize();
   fdc_running = 1;
-  // fdc_write(0, 0, 2);
+  fdc_write(pair[0], pair[1], pair[2]);
+  while (fdc_running)
+    halt();
+  fdc_write2();
+  fdc_running = 0;
+
+  // ここでFDC_DMA_BUF_ADDR初期化しないと
+  for (int i = 0; i < FDC_DMA_BUF_SIZE; i++) {
+    ptr[i]=0x00;
+  }
+
+  toPairCHS(34,pair);
+  ptr[0]='H';
+  ptr[1]='A';
+  ptr[2]='C';
+  ptr[3]='K';
+
+fdc_initialize();
+  fdc_running = 1;
   fdc_write(pair[0], pair[1], pair[2]);
   while (fdc_running)
     halt();
 
   fdc_write2();
   fdc_running = 0;
-
-
 
   while (1)
     halt();
