@@ -8,9 +8,9 @@
 
 int xpos = 100;
 int fdc_running = 0;
-void boot2();
+//void boot2();
 // Cylinder,Head,Sector
-void toPairCHS(int block,int &out[])
+void toPairCHS(int block,int out[])
 {
 out[0] = block / 36;
 out[1] = (block - 36 * out[0]) / 18;
@@ -24,24 +24,22 @@ void boot2() {
   register_handlers();
   fdc_initialize();
   ptr = (unsigned char*)FDC_DMA_BUF_ADDR;
-
-  int out[3];
-  toPairCHS(19,out);// 19ブロックにTEST.TXTがある．
-
-  fdc_running = 1;
-  fdc_read(out[0],out[1],out[3]);
-  while (fdc_running)
-    halt();
-
-  fdc_read2();
-  fdc_running = 0;
-
-
-
   *ptr = 'A';
   ptr[1] = 'B';
+  // 19ブロックにTEST.TXTがあった．
+  // Directroy構造的の定義より，
+  // 最後の6Bit:04 00 00 02 00 00
+  // 26,27ビット目がFATの要素番号
+  // 28,29,30,31ビット目がサイズ
+  // それぞれの項目がリトルエンディアン
+  // 0x00000200 = 512Byte
+  // 0x0004 = FAT番号4 = 35セクタ
+
+  int pair[3];
+  toPairCHS(20,pair);
 
   fdc_running = 1;
+  // fdc_write(pair[0], pair[1], pair[2]);
   fdc_write(0, 0, 1);
   while (fdc_running)
     halt();
