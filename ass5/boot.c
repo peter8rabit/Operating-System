@@ -7,6 +7,9 @@
 #define SCREEN_WIDTH  320
 
 int fdc_running = 0;
+
+/* 各種設定が終わると、boot2d.asm から boot() が呼ばれる
+ */
 void boot();
 void toPairCHS(int block,int out[])
 {
@@ -14,16 +17,16 @@ out[0] = block / 36;
 out[1] = (block - 36 * out[0]) / 18;
 out[2] = block - 36 * out[0] - 18 * out[1] + 1;
 }
-/* 各種設定が終わると、boot2d.asm から boot() が呼ばれる
- */
+
 void boot() {
   register_handlers();
-
-  /* ここで pingpong.exe を読み込んで実行する */
-  int pair[3];
-  toPairCHS(54,pair);
-
   fdc_initialize();
+  /* ここで pingpong.exe を読み込んで実行する */
+  // fdd.imgのpingpong.exeは６２セクタにある
+
+  // 62セクタを読み込む
+  int pair[3];
+  toPairCHS(62,pair);
   fdc_running = 1;
   fdc_read(pair[0], pair[1], pair[2]);
   while (fdc_running)
@@ -31,15 +34,33 @@ void boot() {
   fdc_read2();
   fdc_running = 0;
 
-  unsigned char* src;
-  src = (unsigned char*)FDC_DMA_BUF_ADDR;
+  // 62セクタの内容を0x10000=128セクタに書き込む
+  toPairCHS(128,pair);
+  fdc_running = 1;
+  fdc_write(pair[0], pair[1], pair[2]);
+  while (fdc_running)
+    halt();
+  fdc_write2();
+  fdc_running = 0;
 
-  unsigned char* dst;
-  dst = (unsigned char*)0x10000;
-  for (int i = 0; i < FDC_DMA_BUF_SIZE; i++) {
-    dst[i] = src[i];
-  }
-  //とりま512Byte
+  // 63セクタを読み込む
+  toPairCHS(63,pair);
+  fdc_running = 1;
+  fdc_read(pair[0], pair[1], pair[2]);
+  while (fdc_running)
+    halt();
+  fdc_read2();
+  fdc_running = 0;
+
+  //
+  toPairCHS(129,pair);
+  fdc_running = 1;
+  fdc_write(pair[0], pair[1], pair[2]);
+  while (fdc_running)
+    halt();
+  fdc_write2();
+  fdc_running = 0;
+
   void (*fptr)();
   fptr = (void (*)())0x10000;
   (*fptr)();

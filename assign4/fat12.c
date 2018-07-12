@@ -72,24 +72,28 @@ void boot2() {
   ptr[2+SHIFT]='S';
   ptr[3+SHIFT]='T';
   ptr[4+SHIFT]='2';
+  ptr[5+SHIFT]=0x20;
+  ptr[6+SHIFT]=0x20;
+  ptr[7+SHIFT]=0x20;
   ptr[8+SHIFT]='T';
   ptr[9+SHIFT]='X';
   ptr[10+SHIFT]='T';
   ptr[11+SHIFT]=0x20;//ファイル属性:通常は0x20
   ptr[12+SHIFT]=0x00;//予約領域：通常は0x00
   //TEST.TXTの数値を代用
-  // ptr[18+SHIFT]=0xeb;
-  // ptr[19+SHIFT]=0x4c;
-  // ptr[22+SHIFT]=0x40;
-  // ptr[24+SHIFT]=0x6a;
-  // ptr[25+SHIFT]=0x39;
+  ptr[18+SHIFT]=0x9a;
+  ptr[19+SHIFT]=0x39;
+  ptr[20+SHIFT]=0x6b;
+  ptr[21+SHIFT]=0x39;
+  ptr[22+SHIFT]=0x40;
+  ptr[23+SHIFT]=0x00;
+  ptr[24+SHIFT]=0x6a;
+  ptr[25+SHIFT]=0x39;
 
-//リトルエンディアンで逆
-//FAT要素番号3 = 34セクタに中身を書き込んでみる
-  ptr[26+SHIFT]=0x03;
+  ptr[26+SHIFT]=0x30;
   ptr[27+SHIFT]=0x00;
 
-// 1024Byte size
+// 512Byte size
   ptr[28+SHIFT]=0x00;
   ptr[29+SHIFT]=0x02;
 
@@ -101,26 +105,6 @@ void boot2() {
   fdc_write(pair[0], pair[1], pair[2]);
   while (fdc_running)
     halt();
-  fdc_write2();
-  fdc_running = 0;
-
-  // ここでFDC_DMA_BUF_ADDR初期化しないと
-  for (int i = 0; i < FDC_DMA_BUF_SIZE; i++) {
-    ptr[i]=0x00;
-  }
-
-  toPairCHS(34,pair);
-  ptr[0]='H';
-  ptr[1]='A';
-  ptr[2]='C';
-  ptr[3]='K';
-
-fdc_initialize();
-  fdc_running = 1;
-  fdc_write(pair[0], pair[1], pair[2]);
-  while (fdc_running)
-    halt();
-
   fdc_write2();
   fdc_running = 0;
 
