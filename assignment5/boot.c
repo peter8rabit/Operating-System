@@ -18,10 +18,9 @@ out[2] = block - 36 * out[0] - 18 * out[1] + 1;
  */
 void boot() {
   register_handlers();
-
   /* ここで pingpong.exe を読み込んで実行する */
   int pair[3];
-  toPairCHS(54,pair);
+  toPairCHS(62,pair);//FAT番号が0x1f=31=31+31セクタにpingpong.exeはじまる
 
   fdc_initialize();
   fdc_running = 1;
@@ -35,11 +34,32 @@ void boot() {
   src = (unsigned char*)FDC_DMA_BUF_ADDR;
 
   unsigned char* dst;
-  dst = (unsigned char*)0x10000;
+  dst = (unsigned char*)0x10000;//128セクタ
   for (int i = 0; i < FDC_DMA_BUF_SIZE; i++) {
     dst[i] = src[i];
   }
-  //とりま512Byte
+
+  //640Byteあった...
+  //FAT番号0x1f=31番（32個目）の要素を指している。
+  //そこは0x002だった。
+  //31番の要素の値が0x002 => 62番セクタに続くデータは2+31=33セクタ
+  //FAT番号0x002（３個目）を見ると0xfff => これでファイルの終端とわかる
+  toPairCHS(63,pair);
+
+  fdc_initialize();
+  fdc_running = 1;
+  fdc_read(pair[0], pair[1], pair[2]);
+  while (fdc_running)
+    halt();
+  fdc_read2();
+  fdc_running = 0;
+
+
+  dst = (unsigned char*)0x10200;
+  for (int i = 0; i < FDC_DMA_BUF_SIZE; i++) {
+    dst[i] = src[i];
+  }
+
   void (*fptr)();
   fptr = (void (*)())0x10000;
   (*fptr)();
