@@ -41,9 +41,10 @@ void boot() {
 
   //640Byteあった...
   //FAT番号0x1f=31番（32個目）の要素を指している。
-  //そこは0x002だった。
-  //31番の要素の値が0x002 => 62番セクタに続くデータは2+31=33セクタ
-  //FAT番号0x002（３個目）を見ると0xfff => これでファイルの終端とわかる
+  //そこは0x002だった。=> 12Bitのlittle endianやっとわかった。実際は0x020。
+  //31番の要素の値が0x020 => 62番セクタに続くデータは32+31=63セクタ
+  //FAT番号32（３3個目）を見ると0xfff => これでファイルの終端とわかる
+  //結局連続セクタに続いていた。
   toPairCHS(63,pair);
 
   fdc_initialize();
@@ -85,7 +86,8 @@ int null_timer_handler() {
 int syscall_handler(int* regs) {
   int a = regs[0];
   int b = regs[1];
-
+  print(a,15,15,15);
+  print(b,40,15,15);
   return 0;
 }
 
